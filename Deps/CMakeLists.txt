@@ -52,6 +52,21 @@ find_package(Git)
 include(DownloadProject)
 include(ExternalProject)
 
+find_path(VORO_INCLUDE_DIR voro++.hh)
+find_library(VORO_LIBRARY voro++)
+
+if(VORO_INCLUDE_DIR AND VORO_LIBRARY)
+    message(STATUS "Using system‑installed Voro++")
+    add_library(voro_external INTERFACE)
+    target_include_directories(voro_external INTERFACE ${VORO_INCLUDE_DIR})
+    target_link_libraries(voro_external INTERFACE ${VORO_LIBRARY})
+    # Tell parent scopes we’re done; no download needed
+    set(VORO_EXTERNAL_SOURCE_DIR "" PARENT_SCOPE)
+    return()        # ← skip the ExternalProject_Add below
+endif()
+# ====================================================
+
+
 ExternalProject_Add(voro_external
         URL http://math.lbl.gov/voro++/download/dir/voro++-0.4.6.tar.gz
         UPDATE_COMMAND ""
